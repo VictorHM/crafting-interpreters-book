@@ -37,7 +37,15 @@ class Scanner {
       case '{': addToken(LEFT_BRACE); break;
       case '}': addToken(RIGHT_BRACE); break;
       case ',': addToken(COMMA); break;
-      case '.': addToken(DOT); break;
+      case '.': 
+        // We check if it is a simple dot or it is a decimal point for a number.
+        if (!isDigit(peek())) {
+          addToken(DOT); 
+          break;
+        } else {
+          number();
+          break;
+        }
       case '-': addToken(MINUS); break;
       case '+': addToken(PLUS); break;
       case ';': addToken(SEMICOLON); break;
@@ -104,6 +112,10 @@ class Scanner {
   }
 
   private void number() {
+    // Where does this start? in the '.' in case that is the situation? 
+    // Then we must be sure the next char is a digit. How do we add the leading 0?
+    boolean isDotNotation = false;
+    if (peek() == '.') isDotNotation = true;
     while (isDigit(peek())) advance();
 
     // Look for fractional part.
@@ -113,7 +125,12 @@ class Scanner {
       while (isDigit(peek())) advance();
     }
 
-    addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
+    // Let's try to add leading zero if that's the case
+    if (isDotNotation) {
+      addToken(NUMBER, Double.parseDouble("0" + source.substring(start, current)));
+    } else {
+      addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
+    }
   }
   private boolean match(char expected) {
     if(isAtEnd()) return false;
@@ -134,7 +151,6 @@ class Scanner {
   }
 
   private boolean isDigit(char c) {
-    // TODO: add the option to write .320 and get it parsed as 0.320
     return c >= '0' && c <= '9';
   }
 
@@ -154,3 +170,4 @@ class Scanner {
     String text = source.substring(start, current);
     tokens.add(new Token(type, text, literal, line));
   }
+}
