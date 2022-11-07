@@ -74,6 +74,8 @@ class Scanner {
       default:
         if (isDigit(c)) {
           number();
+        } else if (isAlpha(c)) {
+          identifier();
         } else {
           Lox.error(line, "Unexpected character.");
         }
@@ -81,6 +83,15 @@ class Scanner {
     }
   }
 
+  private void identifier() {
+    while (isAlphaNumeric(peek())) advance();
+
+    // Let's find which identifier.
+    String text = source.substring(start, current);
+    TokenType type = keywords.get(text);
+    if (type == null) type = IDENTIFIER;
+    addToken(type);
+  }
   private void string() {
     while (peek() != '"' && !isAtEnd()) {
       if (peek() == '\n') line++;
@@ -133,6 +144,16 @@ class Scanner {
     return source.charAt(current + 1);
   }
 
+  private boolean isAlpha(char c) {
+    return (c >= 'a' && c <= 'z') ||
+           (c >= 'A' && c <= 'Z') ||
+           c == '_';
+  }
+
+  private boolean isAlphaNumeric (char c) {
+    return isAlpha(c) || isDigit(c);
+  }
+
   private boolean isDigit(char c) {
     // TODO: add the option to write .320 and get it parsed as 0.320
     return c >= '0' && c <= '9';
@@ -154,3 +175,26 @@ class Scanner {
     String text = source.substring(start, current);
     tokens.add(new Token(type, text, literal, line));
   }
+
+  private static final Map<String, TokenType> keywords;
+
+  static {
+    keywords = new HashMap<>();
+    keywords.put("and", AND);
+    keywords.put("class", CLASS);
+    keywords.put("else", ELSE);
+    keywords.put("false", FALSE);
+    keywords.put("for", FOR);
+    keywords.put("fun", FUN);
+    keywords.put("if", IF);
+    keywords.put("nil", NIL);
+    keywords.put("or", OR);
+    keywords.put("print", PRINT);
+    keywords.put("return", RETURN);
+    keywords.put("super", SUPER);
+    keywords.put("this", THIS);
+    keywords.put("true", TRUE);
+    keywords.put("var", VAR);
+    keywords.put("while", WHILE);
+  }
+}
