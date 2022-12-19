@@ -155,7 +155,7 @@ class Scanner {
   }
 
   private boolean isDigit(char c) {
-    // TODO: add the option to write .320 and get it parsed as 0.320
+    // TODO: add the option to write .320 and get it parsed as 0.320. In dev branch in done.
     return c >= '0' && c <= '9';
   }
 
