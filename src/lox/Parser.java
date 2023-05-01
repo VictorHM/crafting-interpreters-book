@@ -1,6 +1,8 @@
 package lox;
 
 import java.util.List;
+import java.io.PrintStream;
+import java.util.ArrayList;
 import static lox.TokenType.*;
 
 public class Parser {
@@ -12,18 +14,38 @@ public class Parser {
     this.tokens = tokens;
   }
 
-  Expression parse() {
-    try {
-      return expression();
-    } catch (ParseError error) {
-      return null;
+  List<Stmt> parse() {
+    List<Stmt> statements = new ArrayList<>();
+    while (!isAtEnd()) {
+      statements.add(statement());
     }
+
+    return statements;
   }
 
   // Main functions representing each level of the grammar of the language.
 
   private Expression expression() {
     return equality();
+  }
+
+  // Method to parse expressions, needed by parse()
+  private Stmt statement() {
+    if (match(PRINT)) return printStatement();
+
+    return expressionStatement();
+  }
+
+  private Stmt printStatement() {
+    Expression value = expression();
+    consume(SEMICOLON, "Expect ':' after value.");
+    return new Stmt.Print(value);    
+  }
+
+  private Stmt expressionStatement() {
+    Expression expr = expression();
+    consume(SEMICOLON, "Exprect ';' adter expression.");
+    return new Stmt.Expr(expr);
   }
 
   private Expression equality () {

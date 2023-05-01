@@ -20,6 +20,13 @@ public class GenerateAst {
       "Literal: Object value",
       "Unary: Token operator, Expression right:"
     ));
+
+    // Generator for Statements. Statements don't evaluate to a value, but they produce side-effects.
+    // It may change a state, do output or something else. Print is an example.
+    defineAst(outputDir, "Stmt", Arrays.asList(
+      "Expr : Expression expression",
+      "Print: Expression expression"
+    ));
   }
 
   private static void defineAst (

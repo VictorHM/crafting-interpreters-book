@@ -1,10 +1,23 @@
 package lox;
 
-public class Interpreter implements Expression.Visitor<Object> {
+import java.util.List;
+
+public class Interpreter implements Expression.Visitor<Object>,
+                                    Stmt.Visitor<Void> {
   
   @Override
   public Object visitLiteralExpression(Expression.Literal expr) {
     return expr.value;
+  }
+
+  void interpret (List<Stmt> statements) {
+    try {
+      for (Stmt statement : statements) {
+        execute(statement);
+      }
+    } catch (RuntimeError error) {
+      Lox.runtimeError(error);
+    }
   }
 
   // Evaluate unary expressions. Single subexpression to evaluate.
@@ -21,15 +34,6 @@ public class Interpreter implements Expression.Visitor<Object> {
         return !isTruthy(right);
     }
     return null;
-  }
-
-  void interpret (Expression expression) {
-    try {
-      Object value = evaluate(expression);
-      System.out.println(stringify(value));
-    } catch (RuntimeError error) {
-      Lox.runtimeError(error);
-    }
   }
 
   private void checkNumberOperand(Token operator, Object operand) {
@@ -78,6 +82,25 @@ public class Interpreter implements Expression.Visitor<Object> {
   private Object evaluate(Expression expr) {
     return expr.accept(this);
   }
+
+  // It is the Statement's analogue to evaluate for expressions. As statements
+  // are side effects but generates no value/variable.
+  private void execute(Stmt stmt) {
+    stmt.accept(this);
+  }
+
+  @Override
+  public Void visitExprStmt(Stmt.Expr stmt) {
+    evaluate(stmt.expression);
+    return null;
+  }
+
+@Override
+public Void visitPrintStmt(Stmt.Print stmt) {
+  Object value = evaluate(stmt.expression);
+  System.out.println(stringify(value));
+  return null;
+}
 
   @Override
   public Object visitBinaryExpression (Expression.Binary expr) {
