@@ -15,17 +15,19 @@ public class GenerateAst {
     }
     String outputDir = args[0];
     defineAst (outputDir, "Expression", Arrays.asList(
-      "Binary: Expression left, Token operator, Expression right",
+      "Binary  : Expression left, Token operator, Expression right",
       "Grouping: Expression expression",
-      "Literal: Object value",
-      "Unary: Token operator, Expression right:"
+      "Literal : Object value",
+      "Variable: Token name",
+      "Unary   : Token operator, Expression right:"
     ));
 
     // Generator for Statements. Statements don't evaluate to a value, but they produce side-effects.
     // It may change a state, do output or something else. Print is an example.
     defineAst(outputDir, "Stmt", Arrays.asList(
       "Expr : Expression expression",
-      "Print: Expression expression"
+      "Print: Expression expression",
+      "Var  : Token name, Expression initializer"
     ));
   }
 

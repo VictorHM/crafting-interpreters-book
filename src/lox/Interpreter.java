@@ -4,6 +4,8 @@ import java.util.List;
 
 public class Interpreter implements Expression.Visitor<Object>,
                                     Stmt.Visitor<Void> {
+
+  private Environment environment = new Environment();
   
   @Override
   public Object visitLiteralExpression(Expression.Literal expr) {
@@ -34,6 +36,11 @@ public class Interpreter implements Expression.Visitor<Object>,
         return !isTruthy(right);
     }
     return null;
+  }
+
+  @Override
+  public Object visitVariableExpression(Expression.Variable expr) {
+    return environment.get(expr.name);
   }
 
   private void checkNumberOperand(Token operator, Object operand) {
@@ -95,12 +102,24 @@ public class Interpreter implements Expression.Visitor<Object>,
     return null;
   }
 
-@Override
-public Void visitPrintStmt(Stmt.Print stmt) {
-  Object value = evaluate(stmt.expression);
-  System.out.println(stringify(value));
-  return null;
-}
+  @Override
+  public Void visitPrintStmt(Stmt.Print stmt) {
+    Object value = evaluate(stmt.expression);
+    System.out.println(stringify(value));
+    return null;
+  }
+
+  @Override
+  public Void visitVarStmt(Stmt.Var stmt) {
+    // Initializes any variable to null, if it isn't explicitly initialized.
+    Object value = null;
+    if (stmt.initializer != null) {
+      value = evaluate(stmt.initializer);
+    }
+
+    environment.define(stmt.name.lexeme, value);
+    return null;
+  }
 
   @Override
   public Object visitBinaryExpression (Expression.Binary expr) {

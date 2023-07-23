@@ -7,6 +7,7 @@ abstract class Expression {
     R visitBinaryExpression(Binary expression);
     R visitGroupingExpression(Grouping expression);
     R visitLiteralExpression(Literal expression);
+    R visitVariableExpression(Variable expression);
     R visitUnaryExpression(Unary expression);
   }
   static class Binary extends Expression {
@@ -48,6 +49,18 @@ abstract class Expression {
     }
 
     final Object value;
+  }
+  static class Variable extends Expression {
+    Variable(Token name) {
+      this.name = name;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitVariableExpression(this);
+    }
+
+    final Token name;
   }
   static class Unary extends Expression {
     Unary(Token operator, Expression right) {
